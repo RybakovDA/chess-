@@ -75,6 +75,7 @@ class Chessboard:
 
     def __prepare_screen(self):
         back_img = pg.image.load(IMG_PATH + WIN_BG_IMG)
+        back_img = pg.transform.scale(back_img, WINDOW_SIZE)
         self.__screen.blit(back_img, (0, 0))
 
     def __draw_cells_on_playboard(self, cells_offset):
