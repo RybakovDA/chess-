@@ -1,6 +1,6 @@
 FPS = 10
 BACKGROUND = (150, 90, 30)
-WINDOW_SIZE = (2520, 1580)
+WINDOW_SIZE = (1000, 800)
 BLACK = (0, 0, 0),
 WHITE = (255, 255, 255)
 YELLOW = (255, 255, 0)
@@ -9,3 +9,8 @@ COLORS = [BLACK, WHITE]
 CELL_QTY = 8
 CELL_SIZE = WINDOW_SIZE[1] // 10
 LTTRS = 'abcdefgh'
+IMG_PATH = 'images/'
+WIN_BG_IMG = 'flowers_background.jpg'
+ROOK_IMG = 'rook2.png'
+BOARD_BG_IMG = 'board_background.jpg'
+CELL_BG_IMG = 'cell_background.jpg'
