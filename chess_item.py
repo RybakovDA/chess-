@@ -21,11 +21,12 @@ class Chessboard:
         num_fields = self.__create_num_fields()
         self.__all_cells = self.__create_all_cells()
         num_fields_depth = num_fields[0].get_width()
+
         playboard_view = pg.Surface((
             2 * num_fields_depth + total_width,
             2 * num_fields_depth + total_width
         )).convert_alpha()
-
+        playboard_view.fill(WHITE)
         back_img = pg.image.load(IMG_PATH + BOARD_BG_IMG)
         back_img = pg.transform.scale(back_img, (playboard_view.get_width(), playboard_view.get_height()))
         playboard_view.blit(back_img, (0, 0))
@@ -46,8 +47,9 @@ class Chessboard:
         self.__draw_cells_on_playboard(cells_offset)
 
     def __create_num_fields(self):
-        n_lines = pg.Surface((self.__cell_size * self.__cell_qty, self.__cell_size // 2)).convert_alpha()
-        n_rows = pg.Surface((self.__cell_size // 2, self.__cell_size * self.__cell_qty)).convert_alpha()
+        n_lines = pg.Surface((self.__cell_size * self.__cell_qty, self.__cell_size // 2), pg.SRCALPHA)
+        n_rows = pg.Surface((self.__cell_size // 2, self.__cell_size * self.__cell_qty), pg.SRCALPHA)
+
         for i in range(self.__cell_qty):
             letter = FNT.render(LTTRS[i], True, BLUE)
             number = FNT.render(str(self.__cell_qty - i), True, BLUE)
