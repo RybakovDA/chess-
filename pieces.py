@@ -1,0 +1,17 @@
+from game_config import *
+import pygame as pg
+
+
+class Piece(pg.sprite.Sprite):
+    def __init__(self, cell_size: int, color: str, field_name: str, file_postfix: str):
+        super().__init__()
+        self._color = color
+        self.field_name = field_name
+        pic = pg.image.load(IMG_PATH + color + file_postfix)
+        self.image = pg.transform.scale(pic, (cell_size, cell_size))
+        self.rect = self.image.get_rect()
+
+
+class Rook(Piece):
+    def __init__(self, cell_size: int, color: str, field: str):
+        super().__init__(cell_size, color, field, '_Rook')

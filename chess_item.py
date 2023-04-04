@@ -1,4 +1,6 @@
 import pygame as pg
+from pieces import *
+import board_data
 from game_config import *
 
 pg.init()
@@ -11,9 +13,13 @@ class Chessboard:
         self.__cell_qty = cell_qty
         self.__cell_size = cell_size
         self.__all_cells = pg.sprite.Group()
+        self.__all_pieces = pg.sprite.Group()
         self.__screen = parent_surface
+        self.__table = board_data.board
+        self.__pieces_types = PIECES_TYPES
         self.__prepare_screen()
         self.__draw_playboard()
+        self.__draw_all_pieces()
         pg.display.update()
 
     def __draw_playboard(self):
@@ -85,6 +91,30 @@ class Chessboard:
             cell.rect.x += cells_offset[0]
             cell.rect.y += cells_offset[1]
         self.__all_cells.draw(self.__screen)
+
+    def __draw_all_pieces(self):
+        self.__setup_board()
+        self.__all_pieces.draw(self.__screen)
+
+    def __setup_board(self):
+        for j, row in enumerate(self.__table):
+            for i, field_value in enumerate(row):
+                if field_value != 0:
+                    piece = self.__create_piece(field_value, (j, i))
+                    self.__all_pieces.add(piece)
+        for piece in self.__all_pieces:
+            for cell in self.__all_cells:
+                if piece.field_name == cell.field_name:
+                    piece.rect = cell.rect
+
+    def __create_piece(self, piece_sym: str, cords: tuple):
+        piece_description = self.__pieces_types[piece_sym]
+        field = self.__to_field_name(cords)
+        piece_name = globals()[piece_description[0]]
+        return piece_name(self.__cell_size,piece_description[1], field)
+
+    def __to_field_name(self, cords: tuple):
+        return LTTRS[cords[1]] + str(self.__cell_qty - cords[0])
 
 
 class Cell(pg.sprite.Sprite):

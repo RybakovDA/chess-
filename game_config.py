@@ -11,6 +11,14 @@ CELL_SIZE = WINDOW_SIZE[1] // 10
 LTTRS = 'abcdefgh'
 IMG_PATH = 'images/'
 WIN_BG_IMG = 'flowers_background.jpg'
-ROOK_IMG = 'rook2.png'
+ROOK_IMG = 'w_Rook'
 BOARD_BG_IMG = 'board_background.jpg'
 CELL_BG_IMG = 'cell_background.jpg'
+PIECES_TYPES = {
+    'k': ('King', 'b'), 'K': ('King', 'w'),
+    'q': ('Queen', 'b'), 'Q': ('Queen', 'w'),
+    'r': ('Rook', 'b'), 'R': ('Rook', 'w'),
+    'b': ('Bishop', 'b'), 'B': ('Bishop', 'w'),
+    'n': ('Knight', 'b'), 'N': ('Knight', 'w'),
+    'p': ('Pawn', 'b'), 'P': ('Pawn', 'w'),
+}
