@@ -5,7 +5,7 @@ from chess_item import *
 clock = pg.time.Clock()
 screen = pg.display.set_mode(WINDOW_SIZE)
 screen.fill(WHITE)
-chessboard = Chessboard(screen, 3, 100)
+chessboard = Chessboard(screen, 6, 70)
 
 run = True
 while run:
@@ -15,4 +15,10 @@ while run:
             pg.quit()
             run = False
             exit()
+        if event.type == pg.MOUSEBUTTONDOWN:
+            chessboard.btn_down(event.button, event.pos)
+        if event.type == pg.MOUSEBUTTONUP:
+            chessboard.btn_up(event.button, event.pos)
+        if event.type == pg.MOUSEMOTION:
+            chessboard.drag(event.pos)
     pg.display.update()

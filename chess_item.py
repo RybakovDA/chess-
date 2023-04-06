@@ -10,13 +10,22 @@ FNT = pg.font.SysFont('arial', 18)
 class Chessboard:
     def __init__(self, parent_surface: pg.Surface,
                  cell_qty: int = CELL_QTY, cell_size: int = CELL_SIZE):
+        self.__picked_piece = None
+        self.__pressed_cell = None
+        self.__dragged_piece = None
+
         self.__cell_qty = cell_qty
         self.__cell_size = cell_size
+
+        self.__all_areas = pg.sprite.Group()
         self.__all_cells = pg.sprite.Group()
         self.__all_pieces = pg.sprite.Group()
+
         self.__screen = parent_surface
         self.__table = board_data.board
+
         self.__pieces_types = PIECES_TYPES
+
         self.__prepare_screen()
         self.__draw_playboard()
         self.__draw_all_pieces()
@@ -105,24 +114,115 @@ class Chessboard:
         for piece in self.__all_pieces:
             for cell in self.__all_cells:
                 if piece.field_name == cell.field_name:
-                    piece.rect = cell.rect
+                    piece.rect = cell.rect.copy()
 
     def __create_piece(self, piece_sym: str, cords: tuple):
         piece_description = self.__pieces_types[piece_sym]
         field = self.__to_field_name(cords)
         piece_name = globals()[piece_description[0]]
-        return piece_name(self.__cell_size,piece_description[1], field)
+        return piece_name(self.__cell_size, piece_description[1], field)
 
     def __to_field_name(self, cords: tuple):
         return LTTRS[cords[1]] + str(self.__cell_qty - cords[0])
 
+    def __get_cell(self, position):
+        for cell in self.__all_cells:
+            if cell.rect.collidepoint(position):
+                return cell
+        return None
+
+    def btn_down(self, button_type: int, position: tuple):
+        self.__pressed_cell = self.__get_cell(position)
+        if self.__pressed_cell is not None:
+            if button_type == 1:
+                self.__unmark_all_cells()
+                self.__dragged_piece = self.__get_piece_on_cell(self.__pressed_cell)
+                if self.__dragged_piece is not None:
+                    self.__dragged_piece.rect.center = position
+                    self.__main_update()
+    def btn_up(self, button_type: int, position: tuple):
+        released_cell = self.__get_cell(position)
+        if released_cell is not None and released_cell == self.__pressed_cell:
+            if button_type == 1:
+                self.__pick_cell(released_cell)
+            if button_type == 3:
+                self.__mark_cell(released_cell)
+        if self.__dragged_piece is not None:
+            if released_cell is not None:
+                self.__dragged_piece.move_piece(released_cell)
+            else:
+                self.__dragged_piece.move_piece(self.__pressed_cell)
+            self.__dragged_piece = None
+        self.__main_update()
+
+    def __mark_cell(self, cell):
+        if not cell.mark:
+            mark = Area(cell)
+            self.__all_areas.add(mark)
+        else:
+            for area in self.__all_areas:
+                if area.field_name == cell.field_name:
+                    area.kill()
+                    break
+        cell.mark ^= True
+
+    def __main_update(self):
+        self.__all_cells.draw(self.__screen)
+        self.__all_areas.draw(self.__screen)
+        self.__all_pieces.draw(self.__screen)
+        pg.display.update()
+
+    def __pick_cell(self, cell):
+        self.__unmark_all_cells()
+        if self.__picked_piece is None:
+            piece = self.__get_piece_on_cell(cell)
+            if piece is not None:
+                pick = Area(cell, False)
+                self.__all_areas.add(pick)
+                self.__picked_piece = piece
+        else:
+            self.__picked_piece.move_piece(cell)
+            self.__picked_piece = None
+
+    def __get_piece_on_cell(self, cell):
+        for piece in self.__all_pieces:
+            if piece.field_name == cell.field_name:
+                return piece
+        return None
+
+    def __unmark_all_cells(self):
+        self.__all_areas.empty()
+        for cell in self.__all_cells:
+            cell.mark = False
+
+    def drag(self, position: tuple):
+        if self.__dragged_piece is not None:
+            self.__dragged_piece.rect.center = position
+            self.__main_update()
+
 
 class Cell(pg.sprite.Sprite):
-    def __init__(self, color_index: int, size: int, coords: tuple, name: str):
+    def __init__(self, color_index: int, size: int, cords: tuple, name: str):
         super().__init__()
-        x, y = coords
+        x, y = cords
+        self.mark = False
         self.color = COLORS[color_index]
         self.field_name = name
         self.image = pg.image.load(IMG_PATH + CELL_BG_IMG)
         self.image = pg.transform.scale(self.image, (size, size))
         self.rect = pg.Rect(x * size, y * size, size, size)
+
+
+class Area(pg.sprite.Sprite):
+    def __init__(self, cell: Cell, type_of_area: bool = True):
+        super().__init__()
+        cords = (cell.rect.x, cell.rect.y)
+        size = (cell.rect.width, cell.rect.height)
+        if type_of_area:
+            pic = pg.image.load(IMG_PATH + WIN_BG_IMG)
+            self.image = pg.transform.scale(pic, size)
+        else:
+            pic = pg.image.load(IMG_PATH + BOARD_BG_IMG)
+            self.image = pg.transform.scale(pic, size)
+        self.rect = pg.Rect(cords, size)
+        self.field_name = cell.field_name

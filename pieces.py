@@ -11,6 +11,10 @@ class Piece(pg.sprite.Sprite):
         self.image = pg.transform.scale(pic, (cell_size, cell_size))
         self.rect = self.image.get_rect()
 
+    def move_piece(self, cell):
+        self.rect = cell.rect.copy()
+        self.field_name = cell.field_name
+
 
 class Rook(Piece):
     def __init__(self, cell_size: int, color: str, field: str):
