@@ -9,7 +9,7 @@ FNT = pg.font.SysFont('arial', 18)
 
 class Chessboard:
     def __init__(self, parent_surface: pg.Surface,
-                 cell_qty: int = CELL_QTY, cell_size: int = CELL_SIZE):
+                 cell_qty: int = CELL_QTY, cell_size: int = CELL_SIZE, start_pos: list = board_data.board):
         self.__picked_piece = None
         self.__pressed_cell = None
         self.__dragged_piece = None
@@ -22,13 +22,16 @@ class Chessboard:
         self.__all_pieces = pg.sprite.Group()
 
         self.__screen = parent_surface
-        self.__table = board_data.board
+        self.__table = start_pos
 
         self.__pieces_types = PIECES_TYPES
 
         self.__prepare_screen()
         self.__draw_playboard()
         self.__draw_all_pieces()
+
+        self.__clean_screen = self.__screen.copy()
+
         pg.display.update()
 
     def __draw_playboard(self):
@@ -140,6 +143,7 @@ class Chessboard:
                 if self.__dragged_piece is not None:
                     self.__dragged_piece.rect.center = position
                     self.__main_update()
+
     def btn_up(self, button_type: int, position: tuple):
         released_cell = self.__get_cell(position)
         if released_cell is not None and released_cell == self.__pressed_cell:
@@ -167,6 +171,7 @@ class Chessboard:
         cell.mark ^= True
 
     def __main_update(self):
+        self.__screen.blit(self.__clean_screen.copy(), (0, 0))
         self.__all_cells.draw(self.__screen)
         self.__all_areas.draw(self.__screen)
         self.__all_pieces.draw(self.__screen)

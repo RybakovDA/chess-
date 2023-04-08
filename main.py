@@ -5,7 +5,7 @@ from chess_item import *
 clock = pg.time.Clock()
 screen = pg.display.set_mode(WINDOW_SIZE)
 screen.fill(WHITE)
-chessboard = Chessboard(screen, 6, 70)
+chessboard = Chessboard(screen, 8, 70)
 
 run = True
 while run:
