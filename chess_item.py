@@ -131,6 +131,12 @@ class Chessboard:
                 return cell
         return None
 
+    def __get_cell_from_cords(self, position):
+        for cell in self.__all_cells:
+            if cell.field_name == position:
+                return cell
+        return None
+
     def btn_down(self, button_type: int, position: tuple):
         self.__pressed_cell = self.__get_cell(position)
         if self.__pressed_cell is not None:
@@ -150,11 +156,9 @@ class Chessboard:
                 self.__mark_cell(released_cell)
         if self.__dragged_piece is not None:
             if released_cell is not None:
-                if released_cell.field_name != self.__dragged_piece.field_name:
-                    self.__change_board_data(self.__dragged_piece, released_cell)
-                self.__dragged_piece.move_piece(released_cell)
+                self.__want_to_move(self.__dragged_piece, released_cell)
             else:
-                self.__dragged_piece.move_piece(self.__pressed_cell)
+                self.__return_to_cell(self.__dragged_piece)
             self.__dragged_piece = None
         self.__main_update()
 
@@ -178,6 +182,7 @@ class Chessboard:
 
     def __pick_cell(self, cell):
         self.__unmark_all_cells()
+        self.__return_to_cell(self.__dragged_piece)
         if self.__picked_piece is None:
             piece = self.__get_piece_on_cell(cell)
             if piece is not None:
@@ -185,8 +190,7 @@ class Chessboard:
                 self.__all_areas.add(pick)
                 self.__picked_piece = piece
         else:
-            self.__change_board_data(self.__picked_piece, cell)
-            self.__picked_piece.move_piece(cell)
+            self.__want_to_move(self.__picked_piece, cell)
             self.__picked_piece = None
 
     def __get_piece_on_cell(self, cell):
@@ -212,6 +216,20 @@ class Chessboard:
         self.__table[piece_x][piece_y] = 0
         print(self.__table)
 
+    def __want_to_move(self, piece, end_cell):
+        if piece.can_move(end_cell):
+            if self.__get_piece_on_cell(end_cell) is None:
+                self.__change_board_data(piece, end_cell)
+                piece.move_piece(end_cell)
+            else:
+                self.__return_to_cell(piece)
+                # TODO
+        else:
+            self.__return_to_cell(piece)
+
+    def __return_to_cell(self, piece):
+        if piece is not None:
+            piece.move_piece(self.__get_cell_from_cords(piece.field_name))
 
 
 class Cell(pg.sprite.Sprite):

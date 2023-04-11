@@ -18,11 +18,12 @@ class Piece(pg.sprite.Sprite):
 
 
     def move_piece(self, cell):
-        if self.can_move():
 
-            self.rect = cell.rect.copy()
-            self.field_name = cell.field_name
-    
+        self.rect = cell.rect.copy()
+        self.field_name = cell.field_name
+
+    def can_move(self, cell):
+        return False
 
 
 class Rook(Piece):
