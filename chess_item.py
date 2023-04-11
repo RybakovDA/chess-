@@ -188,7 +188,7 @@ class Chessboard:
                 self.__all_areas.add(pick)
                 self.__picked_piece = piece
         else:
-            self.__change_board_data(self.__dragged_piece, cell)
+            self.__change_board_data(self.__picked_piece, cell)
             self.__picked_piece.move_piece(cell)
             self.__picked_piece = None
 
