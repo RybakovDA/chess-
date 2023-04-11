@@ -86,7 +86,7 @@ class Chessboard:
                     color_index,
                     self.__cell_size,
                     (x, y),
-                    LTTRS[x] + str(self.__cell_qty - y)
+                    (x, y)
                 )
                 group.add(cell)
                 color_index ^= True
@@ -121,12 +121,9 @@ class Chessboard:
 
     def __create_piece(self, piece_sym: str, cords: tuple):
         piece_description = self.__pieces_types[piece_sym]
-        field = self.__to_field_name(cords)
+        field = cords
         piece_name = globals()[piece_description[0]]
         return piece_name(self.__cell_size, piece_description[1], field)
-
-    def __to_field_name(self, cords: tuple):
-        return LTTRS[cords[1]] + str(self.__cell_qty - cords[0])
 
     def __get_cell(self, position):
         for cell in self.__all_cells:
@@ -209,18 +206,16 @@ class Chessboard:
             self.__main_update()
 
     def __change_board_data(self, piece, cell):
-        cell_x, cell_y = self.__get_field_cords(cell)
-        piece_x, piece_y = self.__get_field_cords(piece)
+        cell_x, cell_y = cell.field_name
+        piece_x, piece_y = piece.field_name
         self.__table[cell_x][cell_y] = self.__table[piece_x][piece_y]
         self.__table[piece_x][piece_y] = 0
         print(self.__table)
 
-    def __get_field_cords(self, cell):
-        return 7 - int(cell.field_name[1]), LTTRS.find(cell.field_name[0])
 
 
 class Cell(pg.sprite.Sprite):
-    def __init__(self, color_index: int, size: int, cords: tuple, name: str):
+    def __init__(self, color_index: int, size: int, cords: tuple, name: tuple):
         super().__init__()
         x, y = cords
         self.mark = False
