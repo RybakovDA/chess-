@@ -209,10 +209,14 @@ class Chessboard:
             self.__main_update()
 
     def __change_board_data(self, piece, cell):
-        self.__table[7 - int(cell.field_name[1])][LTTRS.find(cell.field_name[0])] = self.__table[
-            7 - int(piece.field_name[1])][LTTRS.find(piece.field_name[0])]
-        self.__table[7 - int(piece.field_name[1])][LTTRS.find(piece.field_name[0])] = 0
+        cell_x, cell_y = self.__get_field_cords(cell)
+        piece_x, piece_y = self.__get_field_cords(piece)
+        self.__table[cell_x][cell_y] = self.__table[piece_x][piece_y]
+        self.__table[piece_x][piece_y] = 0
         print(self.__table)
+
+    def __get_field_cords(self, cell):
+        return 7 - int(cell.field_name[1]), LTTRS.find(cell.field_name[0])
 
 
 class Cell(pg.sprite.Sprite):
