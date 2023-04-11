@@ -7,9 +7,9 @@ class Piece(pg.sprite.Sprite):
     def __init__(self, cell_size: int, color: str, field_name: tuple, file_postfix: str, hp: int, damage: int, area_damage_type: int):
         super().__init__()
         self._color = color
-        self._hp = hp
-        self._damage = damage
-        self._area_damage_type = area_damage_type
+        self.hp = hp
+        self.damage = damage
+        self.area_damage_type = area_damage_type
         self.field_name = field_name
         pic = pg.image.load(IMG_PATH + color + file_postfix)
         self.image = pg.transform.scale(pic, (cell_size, cell_size))
@@ -23,6 +23,11 @@ class Piece(pg.sprite.Sprite):
         self.field_name = cell.field_name
 
     def can_move(self, cell):
+        return False
+
+    def can_bite(self, piece):
+        if self.damage >= piece.hp:
+            return True
         return False
 
 

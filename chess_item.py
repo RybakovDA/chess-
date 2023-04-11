@@ -147,6 +147,10 @@ class Chessboard:
                     self.__dragged_piece.rect.center = position
                     self.__main_update()
 
+
+
+
+
     def btn_up(self, button_type: int, position: tuple):
         released_cell = self.__get_cell(position)
         if released_cell is not None and released_cell == self.__pressed_cell:
@@ -211,19 +215,32 @@ class Chessboard:
 
     def __change_board_data(self, piece, cell):
         cell_x, cell_y = cell.field_name
+        if piece is None:
+            self.__table[cell_x][cell_y] = 0
+            return
         piece_x, piece_y = piece.field_name
         self.__table[cell_x][cell_y] = self.__table[piece_x][piece_y]
         self.__table[piece_x][piece_y] = 0
         print(self.__table)
 
     def __want_to_move(self, piece, end_cell):
+        if self.__get_cell_from_cords(piece.field_name) is end_cell:
+            self.__return_to_cell(piece)
+            return
+        end_piece = self.__get_piece_on_cell(end_cell)
         if piece.can_move(end_cell):
-            if self.__get_piece_on_cell(end_cell) is None:
+            if end_piece is None:
                 self.__change_board_data(piece, end_cell)
                 piece.move_piece(end_cell)
             else:
-                self.__return_to_cell(piece)
-                # TODO
+                if piece.can_bite(end_piece):
+                    end_piece.kill()
+                    self.__change_board_data(piece, end_cell)
+                    piece.move_piece(end_cell)
+
+                else:
+                    end_piece.hp -= piece.damage
+                    self.__return_to_cell(piece)
         else:
             self.__return_to_cell(piece)
 
