@@ -18,12 +18,19 @@ class Piece(pg.sprite.Sprite):
 
 
     def move_piece(self, cell):
-        self.rect = cell.rect.copy()
-        self.field_name = cell.field_name
+        if self.can_move():
+
+            self.rect = cell.rect.copy()
+            self.field_name = cell.field_name
+    
 
 
 class Rook(Piece):
-    def __init__(self, cell_size: int, color: str, field: str):
+    def __init__(self, cell_size: int, color: str, field: tuple):
         super().__init__(cell_size, color, field, '_Rook', hp=1, damage=1, area_damage_type=1)
 
+    def can_move(self, cell):
+        if cell.field_name[0] == self.field_name[0] or cell.field_name[1] == self.field_name[1]:
+            return True
+        return False
 
