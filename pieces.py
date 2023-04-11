@@ -1,3 +1,4 @@
+import board_data
 from game_config import *
 import pygame as pg
 

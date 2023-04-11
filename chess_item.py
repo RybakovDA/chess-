@@ -153,6 +153,8 @@ class Chessboard:
                 self.__mark_cell(released_cell)
         if self.__dragged_piece is not None:
             if released_cell is not None:
+                if released_cell.field_name != self.__dragged_piece.field_name:
+                    self.__change_board_data(self.__dragged_piece, released_cell)
                 self.__dragged_piece.move_piece(released_cell)
             else:
                 self.__dragged_piece.move_piece(self.__pressed_cell)
@@ -186,6 +188,7 @@ class Chessboard:
                 self.__all_areas.add(pick)
                 self.__picked_piece = piece
         else:
+            self.__change_board_data(self.__dragged_piece, cell)
             self.__picked_piece.move_piece(cell)
             self.__picked_piece = None
 
@@ -204,6 +207,12 @@ class Chessboard:
         if self.__dragged_piece is not None:
             self.__dragged_piece.rect.center = position
             self.__main_update()
+
+    def __change_board_data(self, piece, cell):
+        self.__table[7 - int(cell.field_name[1])][LTTRS.find(cell.field_name[0])] = self.__table[
+            7 - int(piece.field_name[1])][LTTRS.find(piece.field_name[0])]
+        self.__table[7 - int(piece.field_name[1])][LTTRS.find(piece.field_name[0])] = 0
+        print(self.__table)
 
 
 class Cell(pg.sprite.Sprite):
