@@ -3,7 +3,6 @@ from game_config import *
 from chess_item import *
 
 
-
 clock = pg.time.Clock()
 screen = pg.display.set_mode(WINDOW_SIZE)
 screen.fill(WHITE)

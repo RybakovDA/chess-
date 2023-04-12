@@ -157,7 +157,11 @@ class Chessboard:
             if button_type == 1:
                 self.__pick_cell(released_cell)
             if button_type == 3:
-                self.__mark_cell(released_cell)
+                # TODO
+                if self.__get_piece_on_cell(released_cell).is_splash_atack():
+                    self.__splash_attack(released_cell)
+                else:
+                    self.__mark_cell(released_cell)
         if self.__dragged_piece is not None:
             if released_cell is not None:
                 self.__want_to_move(self.__dragged_piece, released_cell)
@@ -165,6 +169,35 @@ class Chessboard:
                 self.__return_to_cell(self.__dragged_piece)
             self.__dragged_piece = None
         self.__main_update()
+
+    def __attack(self, piece, cell, type_attack: int):
+        end_piece = self.__get_piece_on_cell(cell)
+        if piece.can_bite(end_piece):
+            end_piece.kill()
+            if type_attack == 1:
+                self.__change_board_data(piece, cell)
+                piece.move_piece(cell)
+            elif type_attack == 2:
+                self.__change_board_data(None, cell)
+                self.__return_to_cell(piece)
+            else:  # TODO
+                pass
+        else:
+            end_piece.hp -= piece.damage
+            self.__return_to_cell(piece)
+
+    def __splash_attack(self, cell):
+        piece = self.__get_piece_on_cell(cell)
+        radius = piece.radius_splash
+        for i in range(-radius + 1, radius):
+            for j in range(abs(i) - radius + 1, radius - abs(i)):
+                if i == 0 and j == 0:
+                    continue
+                new_cell_coords = (cell.field_name[0] + i, cell.field_name[1] + j)
+                new_cell = self.__get_cell_from_cords(new_cell_coords)
+                if new_cell is not None and self.__get_piece_on_cell(new_cell) is not None:
+                    self.__attack(piece, new_cell, 2)
+
 
     def __mark_cell(self, cell):
         if not cell.mark:
@@ -233,14 +266,7 @@ class Chessboard:
                 self.__change_board_data(piece, end_cell)
                 piece.move_piece(end_cell)
             else:
-                if piece.can_bite(end_piece):
-                    end_piece.kill()
-                    self.__change_board_data(piece, end_cell)
-                    piece.move_piece(end_cell)
-
-                else:
-                    end_piece.hp -= piece.damage
-                    self.__return_to_cell(piece)
+                self.__attack(piece, end_cell, 1)
         else:
             self.__return_to_cell(piece)
 
