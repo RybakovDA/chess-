@@ -36,7 +36,17 @@ class Rook(Piece):
         super().__init__(cell_size, color, field, '_Rook', hp=1, damage=1, area_damage_type=1)
 
     def can_move(self, cell):
-        if cell.field_name[0] == self.field_name[0] or cell.field_name[1] == self.field_name[1]:
+        if cell.field_name[0] == self.field_name[0]:
+            sign = (cell.field_name[1] - self.field_name[1]) // abs(self.field_name[1] - cell.field_name[1])
+            for i in range(self.field_name[1], cell.field_name[1], sign):
+                if i != self.field_name[1] and board_data.board[cell.field_name[0]][i] != 0:
+                    return False
+            return True
+        if cell.field_name[1] == self.field_name[1]:
+            sign = (cell.field_name[0] - self.field_name[0]) // abs(self.field_name[0] - cell.field_name[0])
+            for i in range(self.field_name[0], cell.field_name[0], sign):
+                if i != self.field_name[0] and board_data.board[i][cell.field_name[1]] != 0:
+                    return False
             return True
         return False
 
