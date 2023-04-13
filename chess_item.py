@@ -26,13 +26,14 @@ class Chessboard:
 
         self.__pieces_types = PIECES_TYPES
 
+        self.__clean_screen = self.__screen.copy()
+
+
+    def make_board(self):
         self.__prepare_screen()
         self.__draw_playboard()
         self.__draw_all_pieces()
-
         self.__clean_screen = self.__screen.copy()
-
-        pg.display.update()
 
     def __draw_playboard(self):
         total_width = self.__cell_qty * self.__cell_size
@@ -147,10 +148,6 @@ class Chessboard:
                     self.__dragged_piece.rect.center = position
                     self.__main_update()
 
-
-
-
-
     def btn_up(self, button_type: int, position: tuple):
         released_cell = self.__get_cell(position)
         if released_cell is not None and released_cell == self.__pressed_cell:
@@ -196,7 +193,6 @@ class Chessboard:
                 new_cell = self.__get_cell_from_cords(new_cell_coords)
                 if new_cell is not None and self.__get_piece_on_cell(new_cell) is not None:
                     self.__attack(piece, new_cell, 2)
-
 
     def __mark_cell(self, cell):
         if not cell.mark:
