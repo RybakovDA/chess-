@@ -158,10 +158,13 @@ class Chessboard:
                 self.__pick_cell(released_cell)
             if button_type == 3:
                 # TODO
-                if self.__get_piece_on_cell(released_cell).is_splash_atack():
-                    self.__splash_attack(released_cell)
-                else:
+                if self.__get_piece_on_cell(released_cell) is None:
                     self.__mark_cell(released_cell)
+                elif self.__get_piece_on_cell(released_cell).is_splash_atack() > 0:
+                    self.__splash_attack(released_cell)
+                else:  # TODO
+                    pass
+
         if self.__dragged_piece is not None:
             if released_cell is not None:
                 self.__want_to_move(self.__dragged_piece, released_cell)
