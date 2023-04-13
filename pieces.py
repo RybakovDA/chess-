@@ -33,6 +33,7 @@ class Piece(pg.sprite.Sprite):
 
 
 class Rook(Piece):
+    # Literally ладья
     def __init__(self, cell_size: int, color: str, field: tuple):
         super().__init__(cell_size, color, field, '_Rook', hp=3, damage=1, area_damage_type=1)
 
@@ -53,6 +54,8 @@ class Rook(Piece):
 
 
 class Beer(Piece):
+    # Фигура может наносить урон по площади радиусом в 3 клетки, имеет урон 2 и hp = 2, может ходить через другие фигуры,
+    # хождение по принципу шахматного ферзя
     def __init__(self, cell_size: int, color: str, field: tuple):
         super().__init__(cell_size, color, field, '_Beer', hp=2, damage=2, area_damage_type=2, radius_splash=3)
 
@@ -64,6 +67,8 @@ class Beer(Piece):
         return False
 
 class Whisky(Piece):
+    # Фигура имеет свойство дальнобойности, ходит по принципу шахматного короля и имеет показатели hp = 2, damage = 1,
+    # может ходить через другие фигуры
     def __init__(self, cell_size: int, color: str, field: tuple):
         super().__init__(cell_size, color, field, '_Whisky', hp=2, damage=1, area_damage_type=3, radius_splash=0)
 
