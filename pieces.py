@@ -31,14 +31,6 @@ class Piece(pg.sprite.Sprite):
             return True
         return False
 
-    def is_splash_atack(self):
-        if self.area_damage_type == 1:
-            return 0
-        elif self.area_damage_type == 2:
-            return self.damage
-        else:
-            return -1
-
 
 class Rook(Piece):
     def __init__(self, cell_size: int, color: str, field: tuple):
@@ -71,3 +63,11 @@ class Beer(Piece):
             return True
         return False
 
+class Whisky(Piece):
+    def __init__(self, cell_size: int, color: str, field: tuple):
+        super().__init__(cell_size, color, field, '_Whisky', hp=2, damage=1, area_damage_type=3, radius_splash=0)
+
+    def can_move(self, cell):
+        if abs(cell.field_name[0] - self.field_name[0]) <= 1 and abs(cell.field_name[1] - self.field_name[1]) <= 1:
+            return True
+        return False
