@@ -5,11 +5,12 @@ from game_config import *
 
 pg.init()
 FNT = pg.font.SysFont('arial', 18)
+FNT25 = pg.font.SysFont('arial', 25)
 
 
 class Chessboard:
     def __init__(self, parent_surface: pg.Surface,
-                 cell_qty: int = CELL_QTY, cell_size: int = CELL_SIZE, start_pos: list = board_data.board):
+                 cell_qty: int = CELL_QTY, cell_size: int = CELL_SIZE, start_pos: list = board_data.board.copy()):
         self.__picked_piece = None
         self.__pressed_cell = None
         self.__dragged_piece = None
@@ -22,18 +23,29 @@ class Chessboard:
         self.__all_pieces = pg.sprite.Group()
 
         self.__screen = parent_surface
-        self.__table = start_pos
+        self.__table = start_pos.copy()
 
         self.__pieces_types = PIECES_TYPES
 
         self.__clean_screen = self.__screen.copy()
 
-
+    def clean_board(self):
+        self.__all_areas.empty()
+        self.__all_cells.empty()
+        self.__all_pieces.empty()
     def make_board(self):
+        self.clean_board()
         self.__prepare_screen()
         self.__draw_playboard()
         self.__draw_all_pieces()
+        self.__screen.blit(FNT25.render('PRESS \'BACKSPACE\' FOR RETURNING TO MENU', True, WHITE), (0, 0))
         self.__clean_screen = self.__screen.copy()
+
+    def make_new_board(self):
+        self.__table = board_data.board.copy()
+        # TODO
+        print(self.__table, board_data.board)
+        self.make_board()
 
     def __draw_playboard(self):
         total_width = self.__cell_qty * self.__cell_size

@@ -8,6 +8,7 @@ screen = pg.display.set_mode(WINDOW_SIZE)
 menu = Menu()
 chessboard = Chessboard(screen, 7, 70)
 menu.append_option('PLAY', chessboard.make_board)
+menu.append_option('RESTART', chessboard.make_new_board)
 menu.append_option('QUIT', pg.quit)
 run = True
 flag = True
