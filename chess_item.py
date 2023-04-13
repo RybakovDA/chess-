@@ -157,13 +157,11 @@ class Chessboard:
             if button_type == 1:
                 self.__pick_cell(released_cell)
             if button_type == 3:
-                # TODO
-                if self.__get_piece_on_cell(released_cell) is None:
+                released_piece = self.__get_piece_on_cell(released_cell)
+                if released_piece is None and released_piece.area_damage_type != 2:
                     self.__mark_cell(released_cell)
-                elif self.__get_piece_on_cell(released_cell).is_splash_atack() > 0:
+                else:
                     self.__splash_attack(released_cell)
-                else:  # TODO
-                    pass
 
         if self.__dragged_piece is not None:
             if released_cell is not None:
@@ -173,23 +171,21 @@ class Chessboard:
             self.__dragged_piece = None
         self.__main_update()
 
-    def __attack(self, piece, cell, type_attack: int):
+    def __attack(self, piece, cell, type_attack: int):  # Реализация непосредственного нанесения урона по клетке
         end_piece = self.__get_piece_on_cell(cell)
         if piece.can_bite(end_piece):
             end_piece.kill()
             if type_attack == 1:
                 self.__change_board_data(piece, cell)
                 piece.move_piece(cell)
-            elif type_attack == 2:
+            elif type_attack == 2 or type_attack == 3:
                 self.__change_board_data(None, cell)
                 self.__return_to_cell(piece)
-            else:  # TODO
-                pass
         else:
             end_piece.hp -= piece.damage
             self.__return_to_cell(piece)
 
-    def __splash_attack(self, cell):
+    def __splash_attack(self, cell):  # Реализация нанесения урона по площади
         piece = self.__get_piece_on_cell(cell)
         radius = piece.radius_splash
         for i in range(-radius + 1, radius):
@@ -259,19 +255,25 @@ class Chessboard:
         self.__table[piece_x][piece_y] = 0
         print(self.__table)
 
-    def __want_to_move(self, piece, end_cell):
+    def __want_to_move(self, piece, end_cell):  # Реализация атаки фигур на одну позицию
         if self.__get_cell_from_cords(piece.field_name) is end_cell:
             self.__return_to_cell(piece)
             return
         end_piece = self.__get_piece_on_cell(end_cell)
-        if piece.can_move(end_cell):
+
+        if piece.can_move(end_cell):  # Основной тип атаки (без способностей)
             if end_piece is None:
                 self.__change_board_data(piece, end_cell)
                 piece.move_piece(end_cell)
             else:
                 self.__attack(piece, end_cell, 1)
-        else:
-            self.__return_to_cell(piece)
+            return
+        if piece.area_damage_type == 3:  # Прописывваем возможность атаки для фигур со способностью дальнобойность
+            if end_piece is None:
+                self.__return_to_cell(piece)
+            else:
+                self.__attack(piece, end_cell, 3)
+        self.__return_to_cell(piece)
 
     def __return_to_cell(self, piece):
         if piece is not None:
