@@ -37,7 +37,7 @@ class Piece(pg.sprite.Sprite):
         elif self.area_damage_type == 2:
             return self.damage
         else:
-            return 0
+            return -1
 
 
 class Rook(Piece):
