@@ -359,7 +359,6 @@ class Cell(pg.sprite.Sprite):
         self.field_name = name
         self.image = pg.image.load(IMG_PATH + CELL_BG_IMG)
         self.image = pg.transform.scale(self.image, (size, size))
-        self.image.fill(self.color)
         self.rect = pg.Rect(x * size, y * size, size, size)
 
 
