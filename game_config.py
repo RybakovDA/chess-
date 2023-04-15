@@ -17,7 +17,7 @@ IMG_PATH = 'images/'
 WIN_BG_IMG = 'flowers_background.jpg'
 ROOK_IMG = 'w_Rook'
 BOARD_BG_IMG = 'board_background.jpg'
-CELL_BG_IMG = 'cell_background.jpg'
+CELL_BG_IMG = 'cell_background.jpeg'
 TURN = ('w', 'b')
 PIECES_TYPES = {
     'k': ('King', 'b'), 'K': ('King', 'w'),
@@ -26,7 +26,8 @@ PIECES_TYPES = {
     'b': ('Bishop', 'b'), 'B': ('Bishop', 'w'),
     'n': ('Knight', 'b'), 'N': ('Knight', 'w'),
     'p': ('Pawn', 'b'), 'P': ('Pawn', 'w'),
-    'Beer': ('Beer', 'w'), 'Whisky': ('Whisky', 'b')
+    'Beer': ('Beer', 'w'), 'Whisky': ('Whisky', 'b'),
+    'SuperKing': ('SuperKing', 'w'), 'superking': ('SuperKing', 'b')
 }
 
 screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)

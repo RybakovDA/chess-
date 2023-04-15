@@ -76,3 +76,12 @@ class Whisky(Piece):
         if abs(cell.field_name[0] - self.field_name[0]) <= 1 and abs(cell.field_name[1] - self.field_name[1]) <= 1:
             return True
         return False
+
+class SuperKing(Piece):
+    def __init__(self, cell_size: int, color: str, field: tuple):
+        super().__init__(cell_size, color, field, '_SuperKing', hp=10, damage=1, area_damage_type=1, radius_splash=0)
+
+    def can_move(self, cell):
+        if abs(cell.field_name[0] - self.field_name[0]) <= 1 and abs(cell.field_name[1] - self.field_name[1]) <= 1:
+            return True
+        return False
