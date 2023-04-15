@@ -188,6 +188,8 @@ class Chessboard:
 
     def __attack(self, piece, cell, type_attack: int):  # Реализация непосредственного нанесения урона по клетке
         end_piece = self.__get_piece_on_cell(cell)
+        if piece.color == end_piece.color:
+            return
         if piece.can_bite(end_piece):
             end_piece.kill()
             if type_attack == 1:
@@ -280,12 +282,16 @@ class Chessboard:
             if end_piece is None:
                 self.__change_board_data(piece, end_cell)
                 piece.move_piece(end_cell)
-            else:
+                self.__turn = (self.__turn + 1) % 2
+
+            elif piece.color != end_piece.color:
                 self.__attack(piece, end_cell, 1)
-            self.__turn = (self.__turn + 1) % 2
+                self.__turn = (self.__turn + 1) % 2
+            else:
+                self.__return_to_cell(piece)
             return
         if piece.area_damage_type == 3:  # Прописывваем возможность атаки для фигур со способностью дальнобойность
-            if end_piece is None:
+            if end_piece is None or end_piece.color == piece.color:
                 self.__return_to_cell(piece)
             else:
                 self.__attack(piece, end_cell, 3)
