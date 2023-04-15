@@ -10,7 +10,7 @@ FNT25 = pg.font.SysFont('arial', 25)
 
 class Chessboard:
     def __init__(self, parent_surface: pg.Surface,
-                 cell_qty: int = CELL_QTY, cell_size: int = CELL_SIZE, start_pos: list = board_data.board.copy()):
+                 cell_qty: int = CELL_QTY, cell_size: int = CELL_SIZE, start_pos: list = board_data.board.copy(), side_start_pos: list = board_data.side_board):
         self.__picked_piece = None
         self.__pressed_cell = None
         self.__dragged_piece = None
@@ -18,13 +18,18 @@ class Chessboard:
         self.__cell_qty = cell_qty
         self.__cell_size = cell_size
 
+        self.__side_pieces = pg.sprite.Group()
         self.__all_areas = pg.sprite.Group()
         self.__all_cells = pg.sprite.Group()
         self.__all_pieces = pg.sprite.Group()
 
         self.__screen = parent_surface
         self.__table = start_pos.copy()
+        self.__side_table = side_start_pos.copy()
         self.__new_game = start_pos.copy()
+
+        self.__left_side_cells = pg.sprite.Group()
+        self.__right_side_cells = pg.sprite.Group()
 
         self.__pieces_types = PIECES_TYPES
         self.__turn = 0
@@ -34,6 +39,7 @@ class Chessboard:
         self.__all_areas.empty()
         self.__all_cells.empty()
         self.__all_pieces.empty()
+
     def make_board(self):
         self.clean_board()
         self.__prepare_screen()
@@ -52,6 +58,7 @@ class Chessboard:
         total_width = self.__cell_qty * self.__cell_size
         num_fields = self.__create_num_fields()
         self.__all_cells = self.__create_all_cells()
+        self.__left_side_cells, self.__right_side_cells = self.__create_side_cells()
         num_fields_depth = num_fields[0].get_width()
 
         playboard_view = pg.Surface((
@@ -77,6 +84,8 @@ class Chessboard:
             playboard_rect.y + num_fields_depth
         )
         self.__draw_cells_on_playboard(cells_offset)
+        self.__draw_side_cells()
+        self.__draw_side_pieces()
 
     def __create_num_fields(self):
         n_lines = pg.Surface((self.__cell_size * self.__cell_qty, self.__cell_size // 2), pg.SRCALPHA)
@@ -104,7 +113,6 @@ class Chessboard:
                 )
                 group.add(cell)
                 color_index ^= True
-            color_index ^= True
         return group
 
     def __prepare_screen(self):
@@ -293,6 +301,45 @@ class Chessboard:
         if piece is not None:
             piece.move_piece(self.__get_cell_from_cords(piece.field_name))
 
+    def __create_side_cells(self):
+        groups = (pg.sprite.Group(), pg.sprite.Group())
+        for i in range(len(PIECES_TYPES)):
+            cell_r = Cell(0, self.__cell_size, (0, i), (0, i))
+            cell_l = Cell(1, self.__cell_size, (1, i), (1, i))
+            groups[0].add(cell_l)
+            groups[1].add(cell_r)
+        return groups
+
+    def __draw_side_cells(self):
+        for cell in self.__left_side_cells:
+            cell.rect.x = 0
+            cell.rect.y += self.__cell_size
+        for cell in self.__right_side_cells:
+            cell.rect.x = self.__screen.get_rect().right - self.__cell_size
+            cell.rect.y += self.__cell_size
+        self.__left_side_cells.draw(self.__screen)
+        self.__right_side_cells.draw(self.__screen)
+
+    def __create_pieces_on_sides(self):
+        l = 3
+        for i, val in enumerate(self.__side_table):
+            piece = self.__create_piece(val, (i // l, i % l))
+            print('making piece')
+            self.__side_pieces.add(piece)
+        for piece in self.__side_pieces:
+            for cell in self.__left_side_cells:
+                if piece.field_name == cell.field_name:
+                    piece.rect = cell.rect.copy()
+                    break
+            for cell in self.__right_side_cells:
+                if piece.field_name == cell.field_name:
+                    piece.rect = cell.rect.copy()
+                    break
+
+    def __draw_side_pieces(self):
+        self.__create_pieces_on_sides()
+        self.__side_pieces.draw(self.__screen)
+
 
 class Cell(pg.sprite.Sprite):
     def __init__(self, color_index: int, size: int, cords: tuple, name: tuple):
@@ -303,6 +350,7 @@ class Cell(pg.sprite.Sprite):
         self.field_name = name
         self.image = pg.image.load(IMG_PATH + CELL_BG_IMG)
         self.image = pg.transform.scale(self.image, (size, size))
+        self.image.fill(self.color)
         self.rect = pg.Rect(x * size, y * size, size, size)
 
 
