@@ -31,5 +31,5 @@ PIECES_TYPES = {
 
 screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
 screen.fill(WHITE)
-WINDOW_SIZE = (screen.get_width(), screen.get_height() - 100)
+WINDOW_SIZE = (screen.get_width(), screen.get_height())
 CELL_SIZE = WINDOW_SIZE[1] // 10

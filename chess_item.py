@@ -167,7 +167,7 @@ class Chessboard:
                 self.__pick_cell(released_cell)
             if button_type == 3:
                 released_piece = self.__get_piece_on_cell(released_cell)
-                if released_piece is None and released_piece.area_damage_type != 2:
+                if released_piece is None or released_piece.area_damage_type != 2:
                     self.__mark_cell(released_cell)
                 else:
                     self.__splash_attack(released_cell)
