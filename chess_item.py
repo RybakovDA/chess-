@@ -173,8 +173,10 @@ class Chessboard:
                 released_piece = self.__get_piece_on_cell(released_cell)
                 if released_piece is None or released_piece.area_damage_type != 2:
                     self.__mark_cell(released_cell)
-                else:
+                elif released_piece.color == TURN[self.__turn]:
                     self.__splash_attack(released_cell)
+                else:
+                    self.__return_to_cell(released_piece)
 
         if self.__dragged_piece is not None:
             if released_cell is not None:
@@ -201,6 +203,7 @@ class Chessboard:
     def __splash_attack(self, cell):  # Реализация нанесения урона по площади
         piece = self.__get_piece_on_cell(cell)
         radius = piece.radius_splash
+        self.__turn = (self.__turn + 1) % 2
         for i in range(-radius + 1, radius):
             for j in range(abs(i) - radius + 1, radius - abs(i)):
                 if i == 0 and j == 0:
