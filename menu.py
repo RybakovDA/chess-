@@ -37,3 +37,7 @@ class Menu:
 
     def get_max_height(self):
         return self._option_surfaces[0].get_height()
+
+    def quit(self):
+        pg.quit()
+        exit()

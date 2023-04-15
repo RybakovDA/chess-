@@ -24,9 +24,10 @@ class Chessboard:
 
         self.__screen = parent_surface
         self.__table = start_pos.copy()
+        self.__new_game = start_pos.copy()
 
         self.__pieces_types = PIECES_TYPES
-
+        self.__turn = 0
         self.__clean_screen = self.__screen.copy()
 
     def clean_board(self):
@@ -38,11 +39,11 @@ class Chessboard:
         self.__prepare_screen()
         self.__draw_playboard()
         self.__draw_all_pieces()
-        self.__screen.blit(FNT25.render('PRESS \'BACKSPACE\' FOR RETURNING TO MENU', True, WHITE), (0, 0))
+        self.__screen.blit(FNT25.render('PRESS \'ESCAPE\' FOR RETURNING TO MENU', True, WHITE), (0, 0))
         self.__clean_screen = self.__screen.copy()
 
     def make_new_board(self):
-        self.__table = board_data.board.copy()
+        self.__table = self.__new_game.copy()
         # TODO
         print(self.__table, board_data.board)
         self.make_board()
@@ -157,8 +158,11 @@ class Chessboard:
                 self.__unmark_all_cells()
                 self.__dragged_piece = self.__get_piece_on_cell(self.__pressed_cell)
                 if self.__dragged_piece is not None:
-                    self.__dragged_piece.rect.center = position
-                    self.__main_update()
+                    if self.__dragged_piece.color == TURN[self.__turn]:
+                        self.__dragged_piece.rect.center = position
+                        self.__main_update()
+                    else:
+                        self.__dragged_piece = None
 
     def btn_up(self, button_type: int, position: tuple):
         released_cell = self.__get_cell(position)
@@ -229,7 +233,7 @@ class Chessboard:
         self.__return_to_cell(self.__dragged_piece)
         if self.__picked_piece is None:
             piece = self.__get_piece_on_cell(cell)
-            if piece is not None:
+            if piece is not None and piece.color == TURN[self.__turn]:
                 pick = Area(cell, False)
                 self.__all_areas.add(pick)
                 self.__picked_piece = piece
@@ -275,12 +279,14 @@ class Chessboard:
                 piece.move_piece(end_cell)
             else:
                 self.__attack(piece, end_cell, 1)
+            self.__turn = (self.__turn + 1) % 2
             return
         if piece.area_damage_type == 3:  # Прописывваем возможность атаки для фигур со способностью дальнобойность
             if end_piece is None:
                 self.__return_to_cell(piece)
             else:
                 self.__attack(piece, end_cell, 3)
+                self.__turn = (self.__turn + 1) % 2
         self.__return_to_cell(piece)
 
     def __return_to_cell(self, piece):

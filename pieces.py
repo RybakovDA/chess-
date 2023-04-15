@@ -6,7 +6,7 @@ import pygame as pg
 class Piece(pg.sprite.Sprite):
     def __init__(self, cell_size: int, color: str, field_name: tuple, file_postfix: str, hp: int, damage: int, area_damage_type: int, radius_splash: int = 0):
         super().__init__()
-        self._color = color
+        self.color = color
         self.hp = hp
         self.damage = damage
         self.area_damage_type = area_damage_type
