@@ -41,6 +41,6 @@ while run:
             if key[pg.K_ESCAPE]:
                 flag = True
                 screen.fill(BLACK)
-                menu.draw(screen, (screen.get_width() - menu.get_max_width()) // 2, menu.get_max_height(),
+                menu.draw(screen, (screen.get_width() - menu.get_max_width()) // 2, screen.get_height() // 2,
                           2 * menu.get_max_height())
         pg.display.flip()
