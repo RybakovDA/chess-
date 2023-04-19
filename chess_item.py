@@ -3,6 +3,7 @@ from pieces import *
 import board_data
 from game_config import *
 
+
 pg.init()
 FNT = pg.font.SysFont('arial', 18)
 FNT25 = pg.font.SysFont('arial', 25)

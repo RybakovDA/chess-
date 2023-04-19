@@ -1,6 +1,7 @@
 from game_config import *
 import pygame as pg
 
+
 FNT = pg.font.SysFont('arial', 100)
 
 

@@ -5,8 +5,8 @@
 # ]
 
 board = [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],
-['r', 'r', 0, 'Whisky', 0, 'R', 'R'], ['superking', 'r', 0, 'Beer', 0, 'R', 'SuperKing'],
-['r', 'r', 0, 'Whisky', 0, 'R', 'R'], [0, 0, 0, 0, 0, 0, 0],
+['r', 'whisky', 0, 0, 0, 'Whisky', 'R'], ['superking', 'beer', 0, 0, 0, 'Beer', 'SuperKing'],
+['r', 'whisky', 0, 0, 0, 'Whisky', 'R'], [0, 0, 0, 0, 0, 0, 0],
 [0, 0, 0, 0, 0, 0, 0]
 ]
 
