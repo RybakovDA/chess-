@@ -18,4 +18,4 @@ clean_board = [
 [0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0]
 ]
 
-side_board = ['Whisky', 'Whisky', 'Whisky', 'Whisky', 'Whisky']
+side_board = ['whisky', 'whisky', 'whisky', 'Whisky', 'Whisky', 'Whisky']

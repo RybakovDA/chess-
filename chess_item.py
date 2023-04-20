@@ -3,7 +3,6 @@ from pieces import *
 import board_data
 from game_config import *
 
-
 pg.init()
 FNT = pg.font.SysFont('arial', 18)
 FNT25 = pg.font.SysFont('arial', 25)
@@ -11,16 +10,19 @@ FNT25 = pg.font.SysFont('arial', 25)
 
 class Chessboard:
     def __init__(self, parent_surface: pg.Surface,
-                 cell_qty: int = CELL_QTY, cell_size: int = CELL_SIZE, start_pos: list = board_data.board.copy(), side_start_pos: list = board_data.side_board):
+                 cell_qty: int = CELL_QTY, cell_size: int = CELL_SIZE, start_pos: list = board_data.board.copy(),
+                 side_start_pos: list = board_data.side_board):
         self.__picked_piece = None
         self.__pressed_cell = None
         self.__dragged_piece = None
+        self.__is_from_side = False
 
         self.__cell_qty = cell_qty
         self.__cell_size = cell_size
 
         self.__side_pieces = pg.sprite.Group()
         self.__all_areas = pg.sprite.Group()
+        self.__side_cells = pg.sprite.Group()
         self.__all_cells = pg.sprite.Group()
         self.__all_pieces = pg.sprite.Group()
 
@@ -28,9 +30,6 @@ class Chessboard:
         self.__table = start_pos.copy()
         self.__side_table = side_start_pos.copy()
         self.__new_game = start_pos.copy()
-
-        self.__left_side_cells = pg.sprite.Group()
-        self.__right_side_cells = pg.sprite.Group()
 
         self.__pieces_types = PIECES_TYPES
         self.__turn = 0
@@ -59,7 +58,7 @@ class Chessboard:
         total_width = self.__cell_qty * self.__cell_size
         num_fields = self.__create_num_fields()
         self.__all_cells = self.__create_all_cells()
-        self.__left_side_cells, self.__right_side_cells = self.__create_side_cells()
+        self.__side_cells = self.__create_side_cells()
         num_fields_depth = num_fields[0].get_width()
 
         playboard_view = pg.Surface((
@@ -152,10 +151,20 @@ class Chessboard:
         for cell in self.__all_cells:
             if cell.rect.collidepoint(position):
                 return cell
+        for cell in self.__side_cells:
+            if cell.rect.collidepoint(position):
+                print('cell selected')
+                return cell
         return None
 
     def __get_cell_from_cords(self, position):
         for cell in self.__all_cells:
+            if cell.field_name == position:
+                return cell
+        return None
+
+    def __get_side_cell_from_cords(self, position):
+        for cell in self.__side_cells:
             if cell.field_name == position:
                 return cell
         return None
@@ -166,12 +175,19 @@ class Chessboard:
             if button_type == 1:
                 self.__unmark_all_cells()
                 self.__dragged_piece = self.__get_piece_on_cell(self.__pressed_cell)
-                if self.__dragged_piece is not None:
-                    if self.__dragged_piece.color == TURN[self.__turn]:
-                        self.__dragged_piece.rect.center = position
-                        self.__main_update()
-                    else:
-                        self.__dragged_piece = None
+                self.__is_from_side = False
+                if self.__dragged_piece is None:
+                    self.__dragged_piece = self.__get_piece_on_side_cell(self.__pressed_cell)
+                    self.__is_from_side = True
+                self.__drag_piece(position)
+
+    def __drag_piece(self, position: tuple):
+        if self.__dragged_piece is not None:
+            if self.__dragged_piece.color == TURN[self.__turn]:
+                self.__dragged_piece.rect.center = position
+                self.__main_update()
+            else:
+                self.__dragged_piece = None
 
     def btn_up(self, button_type: int, position: tuple):
         released_cell = self.__get_cell(position)
@@ -191,7 +207,7 @@ class Chessboard:
             if released_cell is not None:
                 self.__want_to_move(self.__dragged_piece, released_cell)
             else:
-                self.__return_to_cell(self.__dragged_piece)
+                self.__return_piece(self.__dragged_piece)
             self.__dragged_piece = None
         self.__main_update()
 
@@ -240,11 +256,12 @@ class Chessboard:
         self.__all_cells.draw(self.__screen)
         self.__all_areas.draw(self.__screen)
         self.__all_pieces.draw(self.__screen)
+        self.__side_pieces.draw(self.__screen)
         pg.display.update()
 
     def __pick_cell(self, cell):
         self.__unmark_all_cells()
-        self.__return_to_cell(self.__dragged_piece)
+        self.__return_piece(self.__dragged_piece)
         if self.__picked_piece is None:
             piece = self.__get_piece_on_cell(cell)
             if piece is not None and piece.color == TURN[self.__turn]:
@@ -257,6 +274,12 @@ class Chessboard:
 
     def __get_piece_on_cell(self, cell):
         for piece in self.__all_pieces:
+            if piece.field_name == cell.field_name:
+                return piece
+        return None
+
+    def __get_piece_on_side_cell(self, cell):
+        for piece in self.__side_pieces:
             if piece.field_name == cell.field_name:
                 return piece
         return None
@@ -282,53 +305,75 @@ class Chessboard:
         print(self.__table)
 
     def __want_to_move(self, piece, end_cell):  # Реализация атаки фигур на одну позицию
-        if self.__get_cell_from_cords(piece.field_name) is end_cell:
+        if piece in self.__all_pieces:
+            if self.__get_cell_from_cords(piece.field_name) is end_cell:
+                self.__return_to_cell(piece)
+                return
+            end_piece = self.__get_piece_on_cell(end_cell)
+
+            if piece.can_move(end_cell):  # Основной тип атаки (без способностей)
+                if end_piece is None:
+                    self.__change_board_data(piece, end_cell)
+                    piece.move_piece(end_cell)
+                    self.__turn = (self.__turn + 1) % 2
+
+                elif piece.color != end_piece.color:
+                    self.__attack(piece, end_cell, 1)
+                    self.__turn = (self.__turn + 1) % 2
+                else:
+                    self.__return_to_cell(piece)
+                return
+            if piece.area_damage_type == 3:  # Прописывваем возможность атаки для фигур со способностью дальнобойность
+                if end_piece is None or end_piece.color == piece.color:
+                    self.__return_to_cell(piece)
+                else:
+                    self.__attack(piece, end_cell, 3)
+                    self.__turn = (self.__turn + 1) % 2
             self.__return_to_cell(piece)
-            return
-        end_piece = self.__get_piece_on_cell(end_cell)
-
-        if piece.can_move(end_cell):  # Основной тип атаки (без способностей)
-            if end_piece is None:
-                self.__change_board_data(piece, end_cell)
-                piece.move_piece(end_cell)
-                self.__turn = (self.__turn + 1) % 2
-
-            elif piece.color != end_piece.color:
-                self.__attack(piece, end_cell, 1)
-                self.__turn = (self.__turn + 1) % 2
-            else:
-                self.__return_to_cell(piece)
-            return
-        if piece.area_damage_type == 3:  # Прописывваем возможность атаки для фигур со способностью дальнобойность
-            if end_piece is None or end_piece.color == piece.color:
-                self.__return_to_cell(piece)
-            else:
-                self.__attack(piece, end_cell, 3)
-                self.__turn = (self.__turn + 1) % 2
-        self.__return_to_cell(piece)
+        if piece in self.__side_pieces:
+            if self.__get_piece_on_cell(end_cell) is None:
+                piece_description = self.__side_table[piece.field_name[0] * 3 + piece.field_name[1]]
+                print(piece_description)
+                new_board_piece = self.__create_piece(piece_description,
+                                                      (end_cell.field_name[0], end_cell.field_name[1]))
+                self.__all_pieces.add(new_board_piece)
+                new_board_piece.move_piece(end_cell)
+                self.__table[end_cell.field_name[0]][end_cell.field_name[1]] = piece_description
+                self.return_to_side_cell(piece)
 
     def __return_to_cell(self, piece):
         if piece is not None:
             piece.move_piece(self.__get_cell_from_cords(piece.field_name))
 
+    def return_to_side_cell(self, piece):
+        if piece is not None:
+            piece.move_piece(self.__get_side_cell_from_cords(piece.field_name))
+
+    def __return_piece(self, piece):
+        if not self.__is_from_side:
+            self.__return_to_cell(piece)
+        else:
+            self.return_to_side_cell(piece)
     def __create_side_cells(self):
-        groups = (pg.sprite.Group(), pg.sprite.Group())
-        for i in range(len(PIECES_TYPES)):
+        group = pg.sprite.Group()
+        for i in range(3):
             cell_r = Cell(0, self.__cell_size, (0, i), (0, i))
             cell_l = Cell(1, self.__cell_size, (1, i), (1, i))
-            groups[0].add(cell_l)
-            groups[1].add(cell_r)
-        return groups
+            group.add(cell_l)
+            group.add(cell_r)
+        return group
 
     def __draw_side_cells(self):
-        for cell in self.__left_side_cells:
-            cell.rect.x = 0
-            cell.rect.y += self.__cell_size
-        for cell in self.__right_side_cells:
-            cell.rect.x = self.__screen.get_rect().right - self.__cell_size
-            cell.rect.y += self.__cell_size
-        self.__left_side_cells.draw(self.__screen)
-        self.__right_side_cells.draw(self.__screen)
+        flag = True
+        for cell in self.__side_cells:
+            if flag:
+                cell.rect.x = 0
+                cell.rect.y += self.__cell_size
+            else:
+                cell.rect.x = self.__screen.get_rect().right - self.__cell_size
+                cell.rect.y += self.__cell_size
+            flag ^= True
+        self.__side_cells.draw(self.__screen)
 
     def __create_pieces_on_sides(self):
         l = 3
@@ -337,11 +382,7 @@ class Chessboard:
             print('making piece')
             self.__side_pieces.add(piece)
         for piece in self.__side_pieces:
-            for cell in self.__left_side_cells:
-                if piece.field_name == cell.field_name:
-                    piece.rect = cell.rect.copy()
-                    break
-            for cell in self.__right_side_cells:
+            for cell in self.__side_cells:
                 if piece.field_name == cell.field_name:
                     piece.rect = cell.rect.copy()
                     break
