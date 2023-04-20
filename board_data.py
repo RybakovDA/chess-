@@ -19,3 +19,5 @@ clean_board = [
 ]
 
 side_board = ['Whisky', 'Whisky', 'Whisky', 'Whisky', 'Whisky']
+
+is_superking_killed = 0

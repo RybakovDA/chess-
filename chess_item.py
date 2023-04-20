@@ -1,7 +1,7 @@
-import pygame as pg
 from pieces import *
 import board_data
 from game_config import *
+import copy
 
 
 pg.init()
@@ -25,7 +25,7 @@ class Chessboard:
         self.__all_pieces = pg.sprite.Group()
 
         self.__screen = parent_surface
-        self.__table = start_pos.copy()
+        self.__table = copy.deepcopy(start_pos)
         self.__side_table = side_start_pos.copy()
         self.__new_game = start_pos.copy()
 
@@ -40,6 +40,7 @@ class Chessboard:
         self.__all_areas.empty()
         self.__all_cells.empty()
         self.__all_pieces.empty()
+        self.__side_pieces.empty()
 
     def make_board(self):
         self.clean_board()
@@ -50,9 +51,9 @@ class Chessboard:
         self.__clean_screen = self.__screen.copy()
 
     def make_new_board(self):
-        self.__table = self.__new_game.copy()
-        # TODO
-        print(self.__table, board_data.board)
+        self.__table = copy.deepcopy(self.__new_game)
+        self.__turn = 0
+        board_data.is_superking_killed = 0
         self.make_board()
 
     def __draw_playboard(self):

@@ -12,6 +12,7 @@ class Piece(pg.sprite.Sprite):
         self.area_damage_type = area_damage_type
         self.radius_splash = radius_splash
         self.field_name = field_name
+        self.file_postfix = file_postfix
         pic = pg.image.load(IMG_PATH + color + file_postfix)
         self.image = pg.transform.scale(pic, (cell_size, cell_size))
         self.rect = self.image.get_rect()
@@ -28,6 +29,11 @@ class Piece(pg.sprite.Sprite):
 
     def can_bite(self, piece):
         if self.damage >= piece.hp:
+            if piece.file_postfix == '_SuperKing':
+                if piece.color == 'w':
+                    board_data.is_superking_killed = 1
+                else:
+                    board_data.is_superking_killed = 2
             return True
         return False
 
@@ -66,6 +72,7 @@ class Beer(Piece):
             return True
         return False
 
+
 class Whisky(Piece):
     # Фигура имеет свойство дальнобойности, ходит по принципу шахматного короля и имеет показатели hp = 2, damage = 1,
     # может ходить через другие фигуры
@@ -76,6 +83,7 @@ class Whisky(Piece):
         if abs(cell.field_name[0] - self.field_name[0]) <= 1 and abs(cell.field_name[1] - self.field_name[1]) <= 1:
             return True
         return False
+
 
 class SuperKing(Piece):
     def __init__(self, cell_size: int, color: str, field: tuple):

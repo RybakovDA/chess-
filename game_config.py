@@ -1,5 +1,6 @@
 import pygame as pg
 
+
 FPS = 15
 BACKGROUND = (150, 90, 30)
 

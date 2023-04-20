@@ -1,6 +1,6 @@
 from chess_item import *
 from menu import *
-
+import board_data
 
 clock = pg.time.Clock()
 screen = pg.display.set_mode(WINDOW_SIZE)
@@ -40,6 +40,11 @@ while run:
             if event.type == pg.MOUSEMOTION:
                 chessboard.drag(event.pos)
             if key[pg.K_ESCAPE]:
+                flag = True
+                screen.fill(BLACK)
+                menu.draw(screen, (screen.get_width() - menu.get_max_width()) // 2, screen.get_height() // 2,
+                          2 * menu.get_max_height())
+            if board_data.is_superking_killed != 0:
                 flag = True
                 screen.fill(BLACK)
                 menu.draw(screen, (screen.get_width() - menu.get_max_width()) // 2, screen.get_height() // 2,
