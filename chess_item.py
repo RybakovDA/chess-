@@ -153,7 +153,6 @@ class Chessboard:
                 return cell
         for cell in self.__side_cells:
             if cell.rect.collidepoint(position):
-                print('cell selected')
                 return cell
         return None
 
@@ -174,11 +173,10 @@ class Chessboard:
         if self.__pressed_cell is not None:
             if button_type == 1:
                 self.__unmark_all_cells()
-                self.__dragged_piece = self.__get_piece_on_cell(self.__pressed_cell)
-                self.__is_from_side = False
-                if self.__dragged_piece is None:
+                if self.__pressed_cell in self.__all_cells:
+                    self.__dragged_piece = self.__get_piece_on_cell(self.__pressed_cell)
+                else:
                     self.__dragged_piece = self.__get_piece_on_side_cell(self.__pressed_cell)
-                    self.__is_from_side = True
                 self.__drag_piece(position)
 
     def __drag_piece(self, position: tuple):
@@ -195,13 +193,16 @@ class Chessboard:
             if button_type == 1:
                 self.__pick_cell(released_cell)
             if button_type == 3:
-                released_piece = self.__get_piece_on_cell(released_cell)
+                if released_cell in self.__all_cells:
+                    released_piece = self.__get_piece_on_cell(released_cell)
+                else:
+                    released_piece = self.__get_piece_on_side_cell(released_cell)
                 if released_piece is None or released_piece.area_damage_type != 2:
                     self.__mark_cell(released_cell)
                 elif released_piece.color == TURN[self.__turn]:
                     self.__splash_attack(released_cell)
                 else:
-                    self.__return_to_cell(released_piece)
+                    self.__return_piece(released_piece)
 
         if self.__dragged_piece is not None:
             if released_cell is not None:
@@ -263,7 +264,10 @@ class Chessboard:
         self.__unmark_all_cells()
         self.__return_piece(self.__dragged_piece)
         if self.__picked_piece is None:
-            piece = self.__get_piece_on_cell(cell)
+            if cell in self.__all_cells:
+                piece = self.__get_piece_on_cell(cell)
+            else:
+                piece = self.__get_piece_on_side_cell(cell)
             if piece is not None and piece.color == TURN[self.__turn]:
                 pick = Area(cell, False)
                 self.__all_areas.add(pick)
@@ -305,7 +309,7 @@ class Chessboard:
         print(self.__table)
 
     def __want_to_move(self, piece, end_cell):  # Реализация атаки фигур на одну позицию
-        if piece in self.__all_pieces:
+        if piece in self.__all_pieces and end_cell in self.__all_cells:
             if self.__get_cell_from_cords(piece.field_name) is end_cell:
                 self.__return_to_cell(piece)
                 return
@@ -330,7 +334,7 @@ class Chessboard:
                     self.__attack(piece, end_cell, 3)
                     self.__turn = (self.__turn + 1) % 2
             self.__return_to_cell(piece)
-        if piece in self.__side_pieces:
+        if piece in self.__side_pieces and end_cell in self.__all_cells:
             if self.__get_piece_on_cell(end_cell) is None:
                 piece_description = self.__side_table[piece.field_name[0] * 3 + piece.field_name[1]]
                 print(piece_description)
@@ -340,6 +344,7 @@ class Chessboard:
                 new_board_piece.move_piece(end_cell)
                 self.__table[end_cell.field_name[0]][end_cell.field_name[1]] = piece_description
                 self.return_to_side_cell(piece)
+                self.__turn = (self.__turn + 1) % 2
 
     def __return_to_cell(self, piece):
         if piece is not None:
@@ -350,7 +355,7 @@ class Chessboard:
             piece.move_piece(self.__get_side_cell_from_cords(piece.field_name))
 
     def __return_piece(self, piece):
-        if not self.__is_from_side:
+        if piece in self.__all_pieces:
             self.__return_to_cell(piece)
         else:
             self.return_to_side_cell(piece)
