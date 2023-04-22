@@ -196,14 +196,16 @@ class Chessboard:
             if button_type == 3:
                 if released_cell in self.__all_cells:
                     released_piece = self.__get_piece_on_cell(released_cell)
+                    if released_piece is None or released_piece.area_damage_type != 2:
+                        self.__mark_cell(released_cell)
+                    elif released_piece.color == TURN[self.__turn]:
+                        self.__splash_attack(released_cell)
+                    else:
+                        self.__return_piece(released_piece)
                 else:
                     released_piece = self.__get_piece_on_side_cell(released_cell)
-                if released_piece is None or released_piece.area_damage_type != 2:
-                    self.__mark_cell(released_cell)
-                elif released_piece.color == TURN[self.__turn]:
-                    self.__splash_attack(released_cell)
-                else:
-                    self.__return_piece(released_piece)
+                    if released_piece is None:
+                        self.__mark_cell(released_cell)
 
         if self.__dragged_piece is not None:
             if released_cell is not None:
@@ -335,7 +337,7 @@ class Chessboard:
                     self.__attack(piece, end_cell, 3)
                     self.__turn = (self.__turn + 1) % 2
             self.__return_to_cell(piece)
-        if piece in self.__side_pieces and end_cell in self.__all_cells:
+        elif piece in self.__side_pieces and end_cell in self.__all_cells:
             if self.__get_piece_on_cell(end_cell) is None:
                 piece_description = self.__side_table[piece.field_name[0] * 3 + piece.field_name[1]]
                 print(piece_description)
@@ -344,8 +346,10 @@ class Chessboard:
                 self.__all_pieces.add(new_board_piece)
                 new_board_piece.move_piece(end_cell)
                 self.__table[end_cell.field_name[0]][end_cell.field_name[1]] = piece_description
-                self.return_to_side_cell(piece)
                 self.__turn = (self.__turn + 1) % 2
+            self.return_to_side_cell(piece)
+        else:
+            self.__return_piece(piece)
 
     def __return_to_cell(self, piece):
         if piece is not None:

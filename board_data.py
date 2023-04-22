@@ -18,6 +18,6 @@ clean_board = [
 [0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0]
 ]
 
-side_board = ['whisky', 'whisky', 'whisky', 'Whisky', 'Whisky', 'Whisky']
+side_board = ['whisky', 'beer', 'r', 'Whisky', 'Beer', 'R']
 
 is_superking_killed = 0
