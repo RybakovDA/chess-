@@ -31,6 +31,17 @@ PIECES_TYPES = {
     'Whisky': ('Whisky', 'w'), 'whisky': ('Whisky', 'b'),
     'SuperKing': ('SuperKing', 'w'), 'superking': ('SuperKing', 'b')
 }
+PIECES_SYMS = {
+    ('King', 'b') : 'k', 'K': ('King', 'w'),
+    'q': ('Queen', 'b'), 'Q': ('Queen', 'w'),
+    'r': ('Rook', 'b'), 'R': ('Rook', 'w'),
+    'b': ('Bishop', 'b'), 'B': ('Bishop', 'w'),
+    'n': ('Knight', 'b'), 'N': ('Knight', 'w'),
+    'p': ('Pawn', 'b'), 'P': ('Pawn', 'w'),
+    'Beer': ('Beer', 'w'), 'beer': ('Beer', 'b'),
+    'Whisky': ('Whisky', 'w'), 'whisky': ('Whisky', 'b'),
+    'SuperKing': ('SuperKing', 'w'), 'superking': ('SuperKing', 'b')
+}
 
 screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
 screen.fill(WHITE)
