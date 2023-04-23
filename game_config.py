@@ -19,6 +19,7 @@ WIN_BG_IMG = 'flowers_background.jpg'
 ROOK_IMG = 'w_Rook'
 BOARD_BG_IMG = 'board_background.jpg'
 CELL_BG_IMG = 'cell_background.jpeg'
+COIN_PIC = 'coins'
 TURN = ('w', 'b')
 PIECES_TYPES = {
     'k': ('King', 'b'), 'K': ('King', 'w'),

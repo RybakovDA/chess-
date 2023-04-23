@@ -27,35 +27,40 @@ class Chessboard:
         self.__all_pieces = pg.sprite.Group()
 
         self.__screen = parent_surface
-        self.__table = copy.deepcopy(start_pos)
+        self.__table = start_pos.copy()
         self.__side_table = side_start_pos.copy()
-        self.__new_game = start_pos.copy()
+        self.__new_game = copy.deepcopy(start_pos)
+
+        self.__first_player_coins = Coin()
+        self.__second_player_coins = Coin()
 
         self.__pieces_types = PIECES_TYPES
         self.__turn = 0
         self.__clean_screen = self.__screen.copy()
 
-    def clean_board(self): #очищает доску
+    def clean_board(self):  # очищает доску
         self.__all_areas.empty()
         self.__all_cells.empty()
         self.__all_pieces.empty()
         self.__side_pieces.empty()
 
-    def make_board(self): # рисует доску на экране
+    def make_board(self):  # рисует доску на экране
         self.clean_board()
         self.__prepare_screen()
         self.__draw_playboard()
         self.__draw_all_pieces()
         self.__screen.blit(FNT25.render('PRESS \'ESCAPE\' FOR RETURNING TO MENU', True, WHITE), (0, 0))
         self.__clean_screen = self.__screen.copy()
+        self.__first_player_coins.draw((self.__cell_size, self.__cell_size), self.__screen)
+        self.__second_player_coins.draw((self.__screen.get_rect().right - 3 * self.__cell_size, self.__cell_size), self.__screen)
 
-    def make_new_board(self): # рисует новую стартовую доску
+    def make_new_board(self):  # рисует новую стартовую доску
         self.__table = copy.deepcopy(self.__new_game)
         self.__turn = 0
         board_data.is_superking_killed = 0
         self.make_board()
 
-    def __draw_playboard(self): # вспомогательная функция с расчетом положения элементов на экране
+    def __draw_playboard(self):  # вспомогательная функция с расчетом положения элементов на экране
         total_width = self.__cell_qty * self.__cell_size
         num_fields = self.__create_num_fields()
         self.__all_cells = self.__create_all_cells()
@@ -88,7 +93,7 @@ class Chessboard:
         self.__draw_side_cells()
         self.__draw_side_pieces()
 
-    def __create_num_fields(self): # создает буквы и цифры по краям доски
+    def __create_num_fields(self):  # создает буквы и цифры по краям доски
         n_lines = pg.Surface((self.__cell_size * self.__cell_qty, self.__cell_size // 2), pg.SRCALPHA)
         n_rows = pg.Surface((self.__cell_size // 2, self.__cell_size * self.__cell_qty), pg.SRCALPHA)
 
@@ -101,7 +106,7 @@ class Chessboard:
                                  i * self.__cell_size + (self.__cell_size - letter.get_rect().height) // 2))
         return n_rows, n_lines
 
-    def __create_all_cells(self): # создает группу спрайтов клеток
+    def __create_all_cells(self):  # создает группу спрайтов клеток
         group = pg.sprite.Group()
         color_index = 1 if self.__cell_qty % 2 == 0 else 0
         for y in range(self.__cell_qty):
@@ -116,22 +121,22 @@ class Chessboard:
                 color_index ^= True
         return group
 
-    def __prepare_screen(self): # загружает фон для экрана
+    def __prepare_screen(self):  # загружает фон для экрана
         back_img = pg.image.load(IMG_PATH + WIN_BG_IMG)
         back_img = pg.transform.scale(back_img, WINDOW_SIZE)
         self.__screen.blit(back_img, (0, 0))
 
-    def __draw_cells_on_playboard(self, cells_offset): # прикрепляет клетки к экрану
+    def __draw_cells_on_playboard(self, cells_offset):  # прикрепляет клетки к экрану
         for cell in self.__all_cells:
             cell.rect.x += cells_offset[0]
             cell.rect.y += cells_offset[1]
         self.__all_cells.draw(self.__screen)
 
-    def __draw_all_pieces(self): # рисует все фигуры на их местах
+    def __draw_all_pieces(self):  # рисует все фигуры на их местах
         self.__setup_board()
         self.__all_pieces.draw(self.__screen)
 
-    def __setup_board(self): # присваивает каждой фигуре место на доске
+    def __setup_board(self):  # присваивает каждой фигуре место на доске
         for j, row in enumerate(self.__table):
             for i, field_value in enumerate(row):
                 if field_value != 0:
@@ -142,13 +147,13 @@ class Chessboard:
                 if piece.field_name == cell.field_name:
                     piece.rect = cell.rect.copy()
 
-    def __create_piece(self, piece_sym: str, cords: tuple): # создание новой фигуры
+    def __create_piece(self, piece_sym: str, cords: tuple):  # создание новой фигуры
         piece_description = self.__pieces_types[piece_sym]
         field = cords
         piece_name = globals()[piece_description[0]]
         return piece_name(self.__cell_size, piece_description[1], field)
 
-    def __get_cell(self, position): # возвращает клетку на которую наведена мышь
+    def __get_cell(self, position):  # возвращает клетку на которую наведена мышь
         for cell in self.__all_cells:
             if cell.rect.collidepoint(position):
                 return cell
@@ -157,19 +162,19 @@ class Chessboard:
                 return cell
         return None
 
-    def __get_cell_from_cords(self, position): # возвращает клетку основного поля по ее координатам
+    def __get_cell_from_cords(self, position):  # возвращает клетку основного поля по ее координатам
         for cell in self.__all_cells:
             if cell.field_name == position:
                 return cell
         return None
 
-    def __get_side_cell_from_cords(self, position): # возвращает клетку краевого поля по ее координатам
+    def __get_side_cell_from_cords(self, position):  # возвращает клетку краевого поля по ее координатам
         for cell in self.__side_cells:
             if cell.field_name == position:
                 return cell
         return None
 
-    def btn_down(self, button_type: int, position: tuple): # логика при нажатии кнопки мыши
+    def btn_down(self, button_type: int, position: tuple):  # логика при нажатии кнопки мыши
         self.__pressed_cell = self.__get_cell(position)
         if self.__pressed_cell is not None:
             if button_type == 1:
@@ -180,7 +185,7 @@ class Chessboard:
                     self.__dragged_piece = self.__get_piece_on_side_cell(self.__pressed_cell)
                 self.__drag_piece(position)
 
-    def __drag_piece(self, position: tuple): # перетаскивает фигуру за курсором
+    def __drag_piece(self, position: tuple):  # перетаскивает фигуру за курсором
         if self.__dragged_piece is not None:
             if self.__dragged_piece.color == TURN[self.__turn]:
                 self.__dragged_piece.rect.center = position
@@ -188,7 +193,7 @@ class Chessboard:
             else:
                 self.__dragged_piece = None
 
-    def btn_up(self, button_type: int, position: tuple): # логика при отпускании кнопки мыши
+    def btn_up(self, button_type: int, position: tuple):  # логика при отпускании кнопки мыши
         released_cell = self.__get_cell(position)
         if released_cell is not None and released_cell == self.__pressed_cell:
             if button_type == 1:
@@ -244,7 +249,7 @@ class Chessboard:
                 if new_cell is not None and self.__get_piece_on_cell(new_cell) is not None:
                     self.__attack(piece, new_cell, 2)
 
-    def __mark_cell(self, cell): # красит клетку при нажатии ПКМ
+    def __mark_cell(self, cell):  # красит клетку при нажатии ПКМ
         if not cell.mark:
             mark = Area(cell)
             self.__all_areas.add(mark)
@@ -255,15 +260,17 @@ class Chessboard:
                     break
         cell.mark ^= True
 
-    def __main_update(self): # обновление экрана
+    def __main_update(self):  # обновление экрана
         self.__screen.blit(self.__clean_screen.copy(), (0, 0))
+        self.__first_player_coins.draw((self.__cell_size, self.__cell_size), self.__screen)
+        self.__second_player_coins.draw((self.__screen.get_rect().right - 3 * self.__cell_size, self.__cell_size), self.__screen)
         self.__all_cells.draw(self.__screen)
         self.__all_areas.draw(self.__screen)
         self.__all_pieces.draw(self.__screen)
         self.__side_pieces.draw(self.__screen)
         pg.display.update()
 
-    def __pick_cell(self, cell): # выбор клетки и фигуры на ней
+    def __pick_cell(self, cell):  # выбор клетки и фигуры на ней
         self.__unmark_all_cells()
         self.__return_piece(self.__dragged_piece)
         if self.__picked_piece is None:
@@ -279,29 +286,29 @@ class Chessboard:
             self.__want_to_move(self.__picked_piece, cell)
             self.__picked_piece = None
 
-    def __get_piece_on_cell(self, cell): # возвращает фигуру на основной клетке
+    def __get_piece_on_cell(self, cell):  # возвращает фигуру на основной клетке
         for piece in self.__all_pieces:
             if piece.field_name == cell.field_name:
                 return piece
         return None
 
-    def __get_piece_on_side_cell(self, cell): # возвращает фигуру на краевой клетке
+    def __get_piece_on_side_cell(self, cell):  # возвращает фигуру на краевой клетке
         for piece in self.__side_pieces:
             if piece.field_name == cell.field_name:
                 return piece
         return None
 
-    def __unmark_all_cells(self): # делает все клетки неотмеченными
+    def __unmark_all_cells(self):  # делает все клетки неотмеченными
         self.__all_areas.empty()
         for cell in self.__all_cells:
             cell.mark = False
 
-    def drag(self, position: tuple): # перетаскивает фигуру за курсором
+    def drag(self, position: tuple):  # перетаскивает фигуру за курсором
         if self.__dragged_piece is not None:
             self.__dragged_piece.rect.center = position
             self.__main_update()
 
-    def __change_board_data(self, piece, cell): # изменяет матрицу состояния при перемещении фигуры
+    def __change_board_data(self, piece, cell):  # изменяет матрицу состояния при перемещении фигуры
         cell_x, cell_y = cell.field_name
         if piece is None:
             self.__table[cell_x][cell_y] = 0
@@ -346,25 +353,30 @@ class Chessboard:
                 self.__all_pieces.add(new_board_piece)
                 new_board_piece.move_piece(end_cell)
                 self.__table[end_cell.field_name[0]][end_cell.field_name[1]] = piece_description
+                if self.__turn == 0:
+                    self.__first_player_coins.buy(new_board_piece)
+                else:
+                    self.__second_player_coins.buy(new_board_piece)
                 self.__turn = (self.__turn + 1) % 2
             self.return_to_side_cell(piece)
         else:
             self.__return_piece(piece)
 
-    def __return_to_cell(self, piece): # возвращает фигуру на ее основную клетку
+    def __return_to_cell(self, piece):  # возвращает фигуру на ее основную клетку
         if piece is not None:
             piece.move_piece(self.__get_cell_from_cords(piece.field_name))
 
-    def return_to_side_cell(self, piece): # возвращает фигуру на ее краевую клетку
+    def return_to_side_cell(self, piece):  # возвращает фигуру на ее краевую клетку
         if piece is not None:
             piece.move_piece(self.__get_side_cell_from_cords(piece.field_name))
 
-    def __return_piece(self, piece): # возвращает фигуру на ее клетку в зависимости от типа фигуры
+    def __return_piece(self, piece):  # возвращает фигуру на ее клетку в зависимости от типа фигуры
         if piece in self.__all_pieces:
             self.__return_to_cell(piece)
         else:
             self.return_to_side_cell(piece)
-    def __create_side_cells(self): # создает краевые клетки
+
+    def __create_side_cells(self):  # создает краевые клетки
         group = pg.sprite.Group()
         for i in range(3):
             cell_r = Cell(0, self.__cell_size, (0, i), (0, i))
@@ -373,7 +385,7 @@ class Chessboard:
             group.add(cell_r)
         return group
 
-    def __draw_side_cells(self): # рисует краевые клетки
+    def __draw_side_cells(self):  # рисует краевые клетки
         flag = True
         for cell in self.__side_cells:
             if flag:
@@ -385,7 +397,7 @@ class Chessboard:
             flag ^= True
         self.__side_cells.draw(self.__screen)
 
-    def __create_pieces_on_sides(self): # создает краевые фигуры
+    def __create_pieces_on_sides(self):  # создает краевые фигуры
         l = 3
         for i, val in enumerate(self.__side_table):
             piece = self.__create_piece(val, (i // l, i % l))
@@ -397,12 +409,12 @@ class Chessboard:
                     piece.rect = cell.rect.copy()
                     break
 
-    def __draw_side_pieces(self): # рисует краевые фигуры
+    def __draw_side_pieces(self):  # рисует краевые фигуры
         self.__create_pieces_on_sides()
         self.__side_pieces.draw(self.__screen)
 
 
-class Cell(pg.sprite.Sprite): # спрайт клетки
+class Cell(pg.sprite.Sprite):  # спрайт клетки
     def __init__(self, color_index: int, size: int, cords: tuple, name: tuple):
         super().__init__()
         x, y = cords
@@ -414,7 +426,7 @@ class Cell(pg.sprite.Sprite): # спрайт клетки
         self.rect = pg.Rect(x * size, y * size, size, size)
 
 
-class Area(pg.sprite.Sprite): # рисуется при отметке клетки
+class Area(pg.sprite.Sprite):  # рисуется при отметке клетки
     def __init__(self, cell: Cell, type_of_area: bool = True):
         super().__init__()
         cords = (cell.rect.x, cell.rect.y)
@@ -427,3 +439,22 @@ class Area(pg.sprite.Sprite): # рисуется при отметке клет�
             self.image = pg.transform.scale(pic, size)
         self.rect = pg.Rect(cords, size)
         self.field_name = cell.field_name
+
+
+class Coin(pg.sprite.Sprite):
+    def __init__(self, amount: int = 10, size: tuple = (2 * CELL_SIZE, CELL_SIZE)):
+        super().__init__()
+        self.number = amount
+        self.size = size
+        pic = pg.image.load(IMG_PATH + COIN_PIC)
+        self.back_ground = pg.Surface(size)
+        self.coin_pic = pg.transform.scale(pic, (size[1], size[1]))
+
+    def draw(self, cords: tuple, surf: pg.Surface):
+        self.back_ground.fill(WHITE)
+        self.back_ground.blit(pg.font.SysFont('arial', self.size[1]).render(str(self.number), True, BLACK), (0, 0))
+        self.back_ground.blit(self.coin_pic, (self.size[1], 0))
+        surf.blit(self.back_ground, cords)
+
+    def buy(self, piece):
+        self.number -= piece.damage
